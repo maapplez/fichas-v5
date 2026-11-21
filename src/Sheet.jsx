@@ -2,15 +2,28 @@ import {useEffect,useRef,useState} from 'react'
 import {sb} from './supabase'
 import {ATTRS,SKILLS,THEMES,hpMax,wpMax} from './data'
 import {Dots,Track} from './ui'
+import {KINDS} from './Catalog'
 
 export default function Sheet({id,onBack}){
-const [d,setD]=useState(null),timer=useRef()
+const [d,setD]=useState(null),[cat,setCat]=useState([]),timer=useRef()
 useEffect(()=>{
+sb.from('catalog').select('id,kind,name,level,description').order('name').then(({data})=>setCat(data??[]))
 sb.from('characters').select('data').eq('id',id).single().then(({data})=>setD(data?.data))
 const ch=sb.channel('ficha-'+id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'characters',filter:`id=eq.${id}`},p=>setD(p.new.data)).subscribe()
 return()=>{sb.removeChannel(ch)}},[id])
-const set=fn=>setD(prev=>{const n=structuredClone(prev);fn(n)
-clearTimeout(timer.current);timer.current=setTimeout(()=>sb.from('characters').update({data:n}).eq('id',id),500);return n})
+  const set = fn => setD(prev => {
+    const n = structuredClone(prev);
+    fn(n);
+    clearTimeout(timer.current);
+      async function voltar() {
+    clearTimeout(timer.current);
+  <button className="link" onClick={voltar}>Voltar às fichas</button>
+    onBack();
+  }
+    }, 300);
+    return n;
+  });
+}).eq('id',id),500);return n})
 async function del(){if(confirm('Apagar esta ficha? Não dá para desfazer.')){await sb.from('characters').delete().eq('id',id);onBack()}}
 if(!d)return <p className="muted">Carregando ficha…</p>
 const txt=(k,label)=><label>{label}<input value={d[k]} onChange={e=>set(n=>{n[k]=e.target.value})}/></label>
@@ -29,4 +42,9 @@ return <section className="sheet" style={{'--acc':THEMES[d.theme]||THEMES.Padrã
 <div className="track"><h4>Fome</h4><Dots v={d.hunger} on={v=>set(n=>{n.hunger=v})}/>
 <h4>Humanidade</h4><Dots v={d.humanity} max={10} on={v=>set(n=>{n.humanity=v})}/>
 <h4>Manchas</h4><Dots v={d.stains} max={10-d.humanity} on={v=>set(n=>{n.stains=v})}/></div></div>
+<h2>Poderes e traços</h2>
+<select value="" onChange={e=>{const v=e.target.value;if(v)set(n=>{n.powers=[...(n.powers||[]),v]})}}><option value="">Adicionar do catálogo…</option>
+{KINDS.map(k=><optgroup key={k} label={k}>{cat.filter(c=>c.kind===k).map(c=><option key={c.id} value={c.id}>{c.name}{c.level?` (${c.level})`:''}</option>)}</optgroup>)}</select>
+{(d.powers||[]).map(pid=>{const it=cat.find(c=>c.id===pid);return it&&<details key={pid} className="item"><summary>{it.name} <span className="muted">{it.kind}{it.level?` · nível ${it.level}`:''}</span></summary>
+<p>{it.description}</p><button className="link" onClick={()=>set(n=>{n.powers=n.powers.filter(x=>x!==pid)})}>Remover da ficha</button></details>})}
 <button className="danger" onClick={del}>Apagar ficha</button></section>}

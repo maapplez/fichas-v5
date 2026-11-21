@@ -36,3 +36,8 @@ button.card{cursor:pointer}
 .step button:first-of-type{margin-left:auto}
 @media (max-width:600px){h1{font-size:2rem}.title{font-size:2rem;width:100%}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin:1rem 0}
+.tab{background:none;border:1px solid var(--line);color:var(--mut);padding:.4rem .9rem;cursor:pointer;font-size:1.05rem}
+.tab.on{border-color:var(--acc);color:var(--ink)}
+.item{border-bottom:1px solid var(--line);padding:.5rem 0}.item summary{cursor:pointer}
+textarea{background:#150c0e;color:var(--ink);border:1px solid var(--line);padding:.5rem;font:inherit;width:100%}

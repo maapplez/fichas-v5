@@ -29,3 +29,10 @@ As regras ficam no banco (RLS): jogador só lê e edita as próprias fichas; mes
 ## Limitações conhecidas da fase 1
 Se mestre e jogador editarem a mesma ficha no mesmo instante, vale a última gravação.
 Catálogo, importador, assistente de criação, rolador, notas, inventário e relacionamentos entram nas fases 2 e 3.
+
+## Fase 2: catálogo
+1. No SQL Editor, rode `supabase/fase2.sql`.
+2. Menu Catálogo: todos veem e buscam; qualquer jogador cadastra itens próprios; o mestre edita e apaga qualquer item e importa em massa.
+3. Na ficha, a seção Poderes e traços adiciona itens do catálogo.
+4. Importar o seu texto de regras: `node scripts/importar-texto.mjs regras.txt catalogo.json` (roda no seu computador, converte poderes, clãs e predadores). Depois, no Catálogo, use Importar JSON.
+   Para outros tipos, o JSON é uma lista de objetos: `{"kind":"Vantagem","name":"...","level":2,"description":"...","source":"..."}`. Tipos aceitos: Clã, Poder, Ritual, Predador, Vantagem, Defeito, Convicção.

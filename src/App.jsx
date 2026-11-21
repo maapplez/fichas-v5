@@ -3,6 +3,7 @@ import {sb} from './supabase'
 import {blank} from './data'
 import Sheet from './Sheet'
 import Master from './Master'
+import Catalog from './Catalog'
 
 function Login(){
 const [email,setEmail]=useState(''),[pw,setPw]=useState(''),[up,setUp]=useState(false),[msg,setMsg]=useState('')
@@ -28,9 +29,10 @@ if(!user)return <Login/>
 const back=()=>{load();setView('list')}
 return <><nav><strong>Fichas V5</strong>
 <button className="link" onClick={back}>Minhas fichas</button>
+<button className="link" onClick={()=>setView('catalog')}>Catálogo</button>
 {role==='master'&&<button className="link" onClick={()=>setView('master')}>Painel do mestre</button>}
 <button className="link" onClick={()=>sb.auth.signOut()}>Sair</button></nav>
-<main>{view==='master'?<Master onOpen={setView}/>:view==='list'?<>
+<main>{view==='catalog'?<Catalog me={user.id} role={role}/>:view==='master'?<Master onOpen={setView}/>:view==='list'?<>
 <h1>Minhas fichas</h1>
 {!chars.length&&<p className="muted">Você ainda não tem personagens. Crie o primeiro para começar.</p>}
 <div className="grid">{chars.map(c=><button key={c.id} className="card" onClick={()=>setView(c.id)} style={{'--acc':'#a3121f'}}><strong>{c.data.name}</strong><span className="muted">{c.data.clan||'Sem clã'}</span></button>)}</div>
